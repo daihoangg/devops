@@ -1,0 +1,66 @@
+version: '3.7'
+
+#thiet lap service cho cluster
+services:
+  #container busybox
+  busybox:
+    image: busybox
+    ports:
+      - 22:22
+    tty: true
+    networks:
+      - net1
+    volumes:
+      - vol:/home/data_oncontainer
+    deploy:
+      replicas: 3
+      resources:
+        limits:
+          #gioi han su dung max 50% cpu cua container
+          cpus: '0.5'
+          #gioi han su dung max memory la 300MB
+          memory: 300MB
+        reservations:
+          #gioi han su dung min 20% cpu cua container
+          cpus: '0.2'
+          #gioi han su dung min memory la 100MB 
+          memory: 100MB
+
+  #container nginx
+  nginx:
+    image: nginx
+    ports:
+      - 80:8080
+    networks:
+      - net1
+    volumes:
+      - vol:/home/data_oncontainer
+    deploy:
+      replicas: 3
+      resources:
+        limits:
+          #gioi han su dung max 75% cpu cua container
+          cpus: '0.75'
+          #gioi han su dung max memory la 300MB
+          memory: 300MB
+
+# thiết lập networks cho cluster
+networks:
+  mang100:
+    driver: overlay
+    name: www-mang100
+    ipam:
+      driver: default
+      config:
+        - subnet: '100.0.0.0/24'
+
+# thiết lập volume cho cluster
+volumes:
+  vol:
+    driver: local
+    name: vol
+    driver_opts:
+      type: none
+      device: /home/daihv/data_onhost
+      o: bind
+

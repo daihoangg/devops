@@ -1,0 +1,50 @@
+version: '3'
+
+# thiết lập networks cho container server và client
+networks:
+  mang90:
+    driver: bridge
+    ipam:
+      driver: default
+      config:
+        - subnet: '90.0.0.0/24'
+          gateway: '90.0.0.1'
+
+# thiết lập volume sharing host vs container
+volumes:
+  sharing_type1:
+    driver_opts:
+      type: none
+      device: /home/daihv/data_onhost
+      o: bind
+    external: true
+
+# thiết lập volume sharing container vs container 
+# nhưng sẽ phải tạo trước volume sharing_type2 ở trên host trước khi chạy docker compose up
+# sharing_type2:/home/data_oncontainer:ro will setup mode readonly on container.
+volumes:
+  sharing_type2:
+    external: true
+
+# thiết lập server cho container và client
+services:
+  #container Server
+  server:
+    container_name: server
+    build:
+      dockerfile: dockerfile
+      context: .
+    volumes:
+      - sharing_type2:/home/data_oncontainer
+    networks:
+      - mang90
+    restart: always
+
+  #container Client
+  client:
+    container_name: client
+    image: "ubuntu"
+    tty: true    
+    networks:
+      - mang90
+    restart: always
