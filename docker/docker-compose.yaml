@@ -17,7 +17,6 @@ volumes:
       type: none
       device: /home/daihv/data_onhost
       o: bind
-    external: true
 
 # thiết lập volume sharing container vs container 
 # nhưng sẽ phải tạo trước volume sharing_type2 ở trên host trước khi chạy docker compose up
